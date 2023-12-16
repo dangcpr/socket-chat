@@ -1,0 +1,54 @@
+<p>Xin chào bạn</p>
+<form>
+    <input type="text" name="room" placeholder="Nhập tên">
+</form>
+<button name="roomButton">User</button>
+<form>
+    <input type="text" name="sendUser" placeholder="Người nhận">
+</form>
+<form>
+    <input type="text" name="message" placeholder="Tin nhắn">
+</form>
+<button name="sendButton">Gửi</button>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  socket.on('success', (id) => {
+    console.log(id.message)
+
+    const roomButton = document.getElementsByName('roomButton')[0]
+    const sendButton = document.getElementsByName('sendButton')[0]
+    var user = ''
+    
+    roomButton.addEventListener('click', () => {
+        user = document.getElementsByName('room')[0].value
+        socket.emit('join', user)
+        roomButton.disabled = "disabled";
+    })
+
+    sendButton.addEventListener('click', () => {
+        const message = document.getElementsByName('message')[0].value
+        const sendUser = document.getElementsByName('sendUser')[0].value
+        socket.emit('send-message', {
+            sender: user,
+            message: message,
+            receive: sendUser
+        })
+    })
+
+
+    socket.on('receive-message', (data) => {
+        console.log(data.sender == user ? 'You sent: '  + data.message : data.sender + ' sent: ' + data.message)
+        //socket.emit('receive-message', data)
+    })
+    socket.on('join-success', (data) => {
+        console.log("You joined: " + data.message)
+    })
+  })
+
+
+
+
+
+</script>
